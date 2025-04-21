@@ -5,7 +5,8 @@
     "start:backend": "cd backend && npm run start",
     "start:frontend": "cd frontend && npm start",
     "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "vercel-deploy": "vercel"
   },
   "devDependencies": {
     "concurrently": "^8.0.1"

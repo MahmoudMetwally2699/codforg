@@ -5,7 +5,7 @@ import type { RootState, AppDispatch } from '../store/store';
 import { updateCart, toggleCart } from '../store/slices/cartSlice';
 import type { CartItem } from '../types';
 
-const socket = io('http://localhost:3001', {
+const socket = io(process.env.REACT_APP_WS_URL || 'http://localhost:3001', {
   withCredentials: true,
   autoConnect: false,
   auth: {
