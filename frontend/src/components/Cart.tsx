@@ -5,12 +5,17 @@ import type { RootState, AppDispatch } from '../store/store';
 import { updateCart, toggleCart } from '../store/slices/cartSlice';
 import type { CartItem } from '../types';
 
-const socket = io(process.env.REACT_APP_WS_URL || 'http://localhost:3001', {
+const wsUrl = process.env.NODE_ENV === 'production'
+  ? 'wss://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app'
+  : 'ws://localhost:3001';
+
+const socket = io(wsUrl, {
   withCredentials: true,
   autoConnect: false,
   auth: {
     token: localStorage.getItem('token')
-  }
+  },
+  transports: ['websocket', 'polling']
 });
 
 socket.on('connect_error', (error) => {

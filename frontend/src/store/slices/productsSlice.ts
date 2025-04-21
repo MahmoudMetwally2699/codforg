@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { Product } from '../../types';
 
 export const fetchProducts = createAsyncThunk<
@@ -25,7 +25,7 @@ export const fetchProducts = createAsyncThunk<
       return response.data;
     } catch (error) {
       console.error('Failed to fetch products:', error);
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         if (error.code === 'ECONNREFUSED') {
           return rejectWithValue('Backend server is not running. Please start the server and try again.');
         }

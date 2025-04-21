@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+const baseURL = process.env.NODE_ENV === 'production'
+  ? 'https://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app'  // Your Vercel backend URL
+  : 'http://localhost:3001';
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001'
+  baseURL,
+  withCredentials: true
 });
 
 api.interceptors.request.use((config) => {
