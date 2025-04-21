@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseURL = process.env.NODE_ENV === 'production'
-  ? 'https://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app'  // Your Vercel backend URL
+  ? 'https://codforg.vercel.app'  // Updated Vercel backend URL
   : 'http://localhost:3001';
 
 const api = axios.create({

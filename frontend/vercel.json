@@ -27,7 +27,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app/:path*"
+      "destination": "https://codforg.vercel.app/:path*"
     }
   ]
 }

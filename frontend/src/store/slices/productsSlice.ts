@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios, { isAxiosError } from 'axios';
+import api from '../../utils/axios';
+import axios, { AxiosError } from 'axios';
 import { Product } from '../../types';
 
 export const fetchProducts = createAsyncThunk<
@@ -11,7 +12,7 @@ export const fetchProducts = createAsyncThunk<
   async (_, { rejectWithValue, getState }) => {
     try {
       const { filters } = getState() as any;
-      const response = await axios.get('http://localhost:3001/products', {
+      const response = await api.get('/products', {
         params: {
           categories: filters?.categories || [],
           minPrice: filters?.priceRange?.min || 0,
@@ -25,11 +26,12 @@ export const fetchProducts = createAsyncThunk<
       return response.data;
     } catch (error) {
       console.error('Failed to fetch products:', error);
-      if (isAxiosError(error)) {
-        if (error.code === 'ECONNREFUSED') {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        if (axiosError.code === 'ECONNREFUSED') {
           return rejectWithValue('Backend server is not running. Please start the server and try again.');
         }
-        return rejectWithValue(error.message || 'Network error occurred');
+        return rejectWithValue(axiosError.message || 'Network error occurred');
       }
       return rejectWithValue('An unexpected error occurred');
     }

@@ -24,16 +24,30 @@ router.post('/register', async (req, res) => {
   res.json({ token });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = users.get(email);
+  const db = req.app.locals.db;
 
-  if (!user || !await bcrypt.compare(password, user.password)) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+  try {
+    const user = await db.collection('users').findOne({ email });
+
+    if (!user) {
+      console.log('Login failed: User not found:', email);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      console.log('Login failed: Invalid password for user:', email);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ email, id: user._id }, process.env.JWT_SECRET as string);
+    res.json({ token, user: { email } });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
   }
-
-  const token = jwt.sign({ email }, JWT_SECRET);
-  res.json({ token });
 });
 
 router.post('/signup', validate(signupSchema), async (req: Request, res: Response) => {
