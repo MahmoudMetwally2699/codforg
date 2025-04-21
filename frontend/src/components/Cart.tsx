@@ -6,16 +6,20 @@ import { updateCart, toggleCart } from '../store/slices/cartSlice';
 import type { CartItem } from '../types';
 
 const wsUrl = process.env.NODE_ENV === 'production'
-  ? 'wss://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app'
-  : 'ws://localhost:3001';
+  ? 'https://codforg-fzerokgvz-mahmoudmetwally2699s-projects.vercel.app'
+  : 'http://localhost:3001';
 
 const socket = io(wsUrl, {
   withCredentials: true,
   autoConnect: false,
+  transports: ['polling', 'websocket'],
+  path: '/socket.io',
   auth: {
     token: localStorage.getItem('token')
   },
-  transports: ['websocket', 'polling']
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
 });
 
 socket.on('connect_error', (error) => {
