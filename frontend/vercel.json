@@ -7,7 +7,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://codforg-i957.vercel.app"
+          "value": "https://codforg.vercel.app"
         },
         {
           "key": "Access-Control-Allow-Methods",

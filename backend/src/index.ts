@@ -26,24 +26,9 @@ const limiter = rateLimit({
 });
 
 const allowedOrigins = [
-  'https://codforg-i957.vercel.app',
-  'http://localhost:3000'
-].filter((origin): origin is string => !!origin); // Type guard to ensure non-null strings
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
+  'http://localhost:3000',
+  'https://codforg-i957.vercel.app'
+];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -55,7 +40,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
 app.use(express.json());
