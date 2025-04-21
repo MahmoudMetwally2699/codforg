@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../store/slices/authSlice';
+import { login, selectAuthError } from '../store/slices/authSlice';
 import type { AppDispatch } from '../store/store';
 
 export const Login: React.FC = () => {
@@ -9,10 +9,23 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const authError = useSelector(selectAuthError);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await dispatch(login({ email, password }));
+    setError(null);
+
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+
+    try {
+      await dispatch(login({ email, password })).unwrap();
+    } catch (err) {
+      setError(err as string);
+    }
   };
 
   return (
@@ -23,6 +36,11 @@ export const Login: React.FC = () => {
           <p className="mt-2 text-center text-gray-600">Please sign in to your account</p>
         </div>
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {(error || authError) && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded">
+              {error || authError}
+            </div>
+          )}
           <div className="space-y-4">
             <input
               type="email"

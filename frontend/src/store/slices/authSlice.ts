@@ -10,18 +10,20 @@ export const login = createAsyncThunk<
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/login', credentials);
-      const { token } = response.data;
+      const { token, user } = response.data;
+
       if (!token) {
-        return rejectWithValue('Server response missing token');
+        return rejectWithValue('Login failed: No token received');
       }
+
       localStorage.setItem('token', token);
       return token;
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('Login error:', err.response?.data || err.message);
       return rejectWithValue(
         err.response?.data?.error ||
         err.message ||
-        'Login failed'
+        'Login failed. Please check your credentials.'
       );
     }
   }
@@ -107,4 +109,8 @@ const authSlice = createSlice({
 });
 
 export const { logout } = authSlice.actions;
+
+// Add selector for error state
+export const selectAuthError = (state: RootState) => state.auth.error;
+
 export default authSlice.reducer;
