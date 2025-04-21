@@ -1,13 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../utils/axios';
 
-export const login = createAsyncThunk(
+export const login = createAsyncThunk<
+  string,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   'auth/login',
-  async (credentials: { email: string; password: string }) => {
-    const response = await api.post('/auth/login', credentials);
-    const { token } = response.data;
-    localStorage.setItem('token', token);
-    return token;
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/auth/login', credentials);
+      const { token } = response.data;
+      if (!token) {
+        return rejectWithValue('Server response missing token');
+      }
+      localStorage.setItem('token', token);
+      return token;
+    } catch (err: any) {
+      console.error('Login error:', err);
+      return rejectWithValue(
+        err.response?.data?.error ||
+        err.message ||
+        'Login failed'
+      );
+    }
   }
 );
 
@@ -73,7 +89,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        state.error = action.payload ?? action.error.message ?? 'Login failed';
       })
       .addCase(signup.pending, (state) => {
         state.loading = true;

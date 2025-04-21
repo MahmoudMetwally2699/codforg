@@ -7,28 +7,13 @@ import { signupSchema } from '../validation/schemas';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// In-memory user store (replace with database in production)
-const users = new Map();
-
-router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (users.has(email)) {
-    return res.status(400).json({ error: 'User already exists' });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  users.set(email, { email, password: hashedPassword });
-
-  const token = jwt.sign({ email }, JWT_SECRET);
-  res.json({ token });
-});
-
 router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const db = req.app.locals.db;
 
   try {
+    console.log('Login attempt for:', email);
+
     const user = await db.collection('users').findOne({ email });
 
     if (!user) {
@@ -42,8 +27,16 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ email, id: user._id }, process.env.JWT_SECRET as string);
-    res.json({ token, user: { email } });
+    const token = jwt.sign({ email, id: user._id }, JWT_SECRET);
+    console.log('Login successful for:', email);
+
+    res.json({
+      token,
+      user: {
+        email: user.email,
+        id: user._id
+      }
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
