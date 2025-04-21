@@ -26,15 +26,16 @@ const limiter = rateLimit({
 });
 
 const allowedOrigins = [
-  'http://localhost:3000',
-  'https://codforg-i957.vercel.app'
-];
+  'https://codforg-i957.vercel.app',
+  'http://localhost:3000'
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('Blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -59,7 +60,9 @@ const PORT = process.env.PORT || 3001;
 
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: process.env.NODE_ENV === 'production'
+      ? 'https://codforg-i957.vercel.app'
+      : 'http://localhost:3000',
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
