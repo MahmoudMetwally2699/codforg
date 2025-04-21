@@ -9,21 +9,28 @@ export const login = createAsyncThunk<
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/login', credentials);
-      const { token, user } = response.data;
+      console.log('Attempting login for:', credentials.email);
 
-      if (!token) {
-        return rejectWithValue('Login failed: No token received');
+      const response = await api.post('/auth/login', credentials);
+      console.log('Login response:', response.data);
+
+      if (!response.data.token) {
+        console.error('No token in response');
+        return rejectWithValue('Invalid response from server');
       }
 
-      localStorage.setItem('token', token);
-      return token;
+      localStorage.setItem('token', response.data.token);
+      return response.data.token;
     } catch (err: any) {
-      console.error('Login error:', err.response?.data || err.message);
+      console.error('Login error:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message
+      });
+
       return rejectWithValue(
         err.response?.data?.error ||
-        err.message ||
-        'Login failed. Please check your credentials.'
+        'Failed to login. Please check your credentials.'
       );
     }
   }

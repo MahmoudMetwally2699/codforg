@@ -8,46 +8,45 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 router.post('/login', async (req: Request, res: Response) => {
+  console.log('Login request received:', { email: req.body.email });
+
   const { email, password } = req.body;
   const db = req.app.locals.db;
 
-  console.log('Login attempt for:', email);
+  if (!email || !password) {
+    console.log('Missing credentials');
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
 
   try {
-    // Validate request body
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
-    }
-
     const user = await db.collection('users').findOne({ email });
-    console.log('User found:', !!user);
 
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    console.log('Found user:', { email: user.email, hasPassword: !!user.password });
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log('Password valid:', isValidPassword);
+    console.log('Password validation result:', isValidPassword);
 
     if (!isValidPassword) {
+      console.log('Invalid password for user:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ email, id: user._id }, JWT_SECRET, {
-      expiresIn: '24h'
-    });
+    const token = jwt.sign(
+      { email, id: user._id },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-    console.log('Login successful for:', email);
-    res.json({
-      token,
-      user: {
-        email: user.email,
-        id: user._id
-      }
-    });
+    console.log('Login successful, token generated for:', email);
+    res.json({ token, user: { email, id: user._id } });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 

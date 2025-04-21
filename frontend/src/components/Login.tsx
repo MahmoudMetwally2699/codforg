@@ -10,14 +10,17 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const authError = useSelector(selectAuthError);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     if (!email || !password) {
       setError('Email and password are required');
+      setIsLoading(false);
       return;
     }
 
@@ -25,6 +28,8 @@ export const Login: React.FC = () => {
       await dispatch(login({ email, password })).unwrap();
     } catch (err) {
       setError(err as string);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -35,12 +40,12 @@ export const Login: React.FC = () => {
           <h2 className="text-3xl font-bold text-center text-gray-900">Welcome back</h2>
           <p className="mt-2 text-center text-gray-600">Please sign in to your account</p>
         </div>
+        {(error || authError) && (
+          <div className="text-red-500 text-sm bg-red-50 p-3 rounded mb-4">
+            {error || authError}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {(error || authError) && (
-            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded">
-              {error || authError}
-            </div>
-          )}
           <div className="space-y-4">
             <input
               type="email"
@@ -63,11 +68,12 @@ export const Login: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm
-                     font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none
-                     focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm
+                     font-medium text-white ${isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}
+                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200`}
           >
-            Sign in
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
           <div className="text-center">
             <p className="text-sm text-gray-600">
