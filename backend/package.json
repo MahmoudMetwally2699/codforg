@@ -13,7 +13,7 @@
     "express-rate-limit": "^6.7.0",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.5.0",
-    "morgan": "^1.10.0",
+    "morgan": "^1.10.1",
     "socket.io": "^4.6.1",
     "yup": "^1.2.0"
   },
